@@ -1,3 +1,6 @@
+# coding: utf-8
+
+
 # # Assignment 3 - More Pandas
 # This assignment requires more individual learning then the last one did - you are encouraged to check out the [pandas documentation](http://pandas.pydata.org/pandas-docs/stable/) to find functions or methods you might not have used yet, or ask questions on [Stack Overflow](http://stackoverflow.com/) and tag them as pandas and python related. And of course, the discussion forums are open for interaction with your peers and the course staff.
 
@@ -25,7 +28,6 @@
 # 
 # `'Switzerland17'` should be `'Switzerland'`.
 # 
-# <br>
 # 
 # Next, load the GDP data from the file `world_bank.csv`, which is a csv containing countries' GDP from 1960 to 2015 from [World Bank](http://data.worldbank.org/indicator/NY.GDP.MKTP.CD). Call this DataFrame **GDP**. 
 # 
@@ -35,7 +37,6 @@
 # "Iran, Islamic Rep.": "Iran",
 # "Hong Kong SAR, China": "Hong Kong"```
 # 
-# <br>
 # 
 # Finally, load the [Sciamgo Journal and Country Rank data for Energy Engineering and Power Technology](http://www.scimagojr.com/countryrank.php?category=2102) from the file `scimagojr-3.xlsx`, which ranks countries based on their journal contributions in the aforementioned area. Call this DataFrame **ScimEn**.
 # 
@@ -128,7 +129,7 @@ answer_two()
 
 # ### Question 3 (6.6%)
 # What is the average GDP over the last 10 years for each country? (exclude missing values from this calculation.)
-
+#
 
 def avgGDP(row):
     data=row[['2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015']]
@@ -226,9 +227,7 @@ answer_eight()
 # ### Question 9 (6.6%)
 # Create a column that estimates the number of citable documents per person. 
 # What is the correlation between the number of citable documents per capita and the energy supply per capita? Use the `.corr()` method, (Pearson's correlation).
-# 
-# *This function should return a single number.*
-# 
+#  
 
 def DC_per(row):
     row['Citable documents per capita']=row['Citable documents']/row['population']
