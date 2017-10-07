@@ -1,12 +1,3 @@
-
-# coding: utf-8
-
-# ---
-# 
-# _You are currently looking at **version 1.5** of this notebook. To download notebooks and datafiles, as well as get help on Jupyter notebooks in the Coursera platform, visit the [Jupyter Notebook FAQ](https://www.coursera.org/learn/python-data-analysis/resources/0dhYG) course resource._
-# 
-# ---
-
 # # Assignment 3 - More Pandas
 # This assignment requires more individual learning then the last one did - you are encouraged to check out the [pandas documentation](http://pandas.pydata.org/pandas-docs/stable/) to find functions or methods you might not have used yet, or ask questions on [Stack Overflow](http://stackoverflow.com/) and tag them as pandas and python related. And of course, the discussion forums are open for interaction with your peers and the course staff.
 
@@ -54,10 +45,7 @@
 #        'Citations per document', 'H index', 'Energy Supply',
 #        'Energy Supply per Capita', '% Renewable', '2006', '2007', '2008',
 #        '2009', '2010', '2011', '2012', '2013', '2014', '2015'].
-# 
-# *This function should return a DataFrame with 20 columns and 15 entries.*
 
-# In[ ]:
 
 import pandas as pd
 import numpy as np 
@@ -112,38 +100,7 @@ answer_one()
 
 # ### Question 2 (6.6%)
 # The previous question joined three datasets then reduced this to just the top 15 entries. When you joined the datasets, but before you reduced this to the top 15 items, how many entries did you lose?
-# 
-# *This function should return a single number.*
 
-# In[ ]:
-
-get_ipython().run_cell_magic('HTML', '', '<svg width="800" height="300">\n  <circle cx="150" cy="180" r="80" fill-opacity="0.2" stroke="black" stroke-width="2" fill="blue" />\n  <circle cx="200" cy="100" r="80" fill-opacity="0.2" stroke="black" stroke-width="2" fill="red" />\n  <circle cx="100" cy="100" r="80" fill-opacity="0.2" stroke="black" stroke-width="2" fill="green" />\n  <line x1="150" y1="125" x2="300" y2="150" stroke="black" stroke-width="2" fill="black" stroke-dasharray="5,3"/>\n  <text  x="300" y="165" font-family="Verdana" font-size="35">Everything but this!</text>\n</svg>')
-
-
-# In[ ]:
-
-def convert_country(row):
-    row['Country']=re.sub(r'[\d]','',row['Country'])
-    if "(" in row['Country']:
-        row['Country']=row['Country'].split(" (")[0]
-    if row['Country']=="Republic of Korea":
-        row['Country']="South Korea"
-    if row['Country']=="United States of America":
-        row['Country']="United States"
-    if row['Country']=="United Kingdom of Great Britain and Northern Ireland": 
-        row['Country']="United Kingdom"
-    if row['Country']=="China, Hong Kong Special Administrative Region": 
-        row['Country']="Hong Kong"
-    return row['Country']
-
-def rename_country(row):
-    if row['Country Name']=="Korea, Rep.":
-        row['Country Name']="South Korea"
-    if row['Country Name']=="Iran, Islamic Rep.":
-        row['Country Name']="Iran"
-    if row['Country Name']=="Hong Kong SAR, China": 
-        row['Country Name']="Hong Kong"
-    return row['Country Name']
 
 def answer_two():
     #items lost = len(union of all three df) - len(intersection of all 3 df)
@@ -169,16 +126,9 @@ def answer_two():
 answer_two()
 
 
-# <br>
-# 
-# ## Answer the following questions in the context of only the top 15 countries by Scimagojr Rank (aka the DataFrame returned by `answer_one()`)
-
 # ### Question 3 (6.6%)
 # What is the average GDP over the last 10 years for each country? (exclude missing values from this calculation.)
-# 
-# *This function should return a Series named `avgGDP` with 15 countries and their average GDP sorted in descending order.*
 
-# In[ ]:
 
 def avgGDP(row):
     data=row[['2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015']]
@@ -197,9 +147,6 @@ answer_three()
 # ### Question 4 (6.6%)
 # By how much had the GDP changed over the 10 year span for the country with the 6th largest average GDP?
 # 
-# *This function should return a single number.*
-
-# In[ ]:
 
 def answer_four():
     Top15 = answer_one()
@@ -212,9 +159,6 @@ answer_four()
 # ### Question 5 (6.6%)
 # What is the mean `Energy Supply per Capita`?
 # 
-# *This function should return a single number.*
-
-# In[ ]:
 
 def answer_five():
     Top15 = answer_one()
@@ -227,9 +171,6 @@ answer_five()
 # ### Question 6 (6.6%)
 # What country has the maximum % Renewable and what is the percentage?
 # 
-# *This function should return a tuple with the name of the country and the percentage.*
-
-# In[ ]:
 
 def answer_six():
     Top15 = answer_one()
@@ -246,9 +187,6 @@ answer_six()
 # Create a new column that is the ratio of Self-Citations to Total Citations. 
 # What is the maximum value for this new column, and what country has the highest ratio?
 # 
-# *This function should return a tuple with the name of the country and the ratio.*
-
-# In[ ]:
 
 def ratio(row):
     row['ratio']=row['Self-citations']/row['Citations']
@@ -271,9 +209,6 @@ answer_seven()
 # Create a column that estimates the population using Energy Supply and Energy Supply per capita. 
 # What is the third most populous country according to this estimate?
 # 
-# *This function should return a single string value.*
-
-# In[ ]:
 
 def population(row):
     row['population']=row['Energy Supply']/row['Energy Supply per Capita']
@@ -294,13 +229,6 @@ answer_eight()
 # 
 # *This function should return a single number.*
 # 
-# *(Optional: Use the built-in function `plot9()` to visualize the relationship between Energy Supply per Capita vs. Citable docs per Capita)*
-
-# In[ ]:
-
-def population(row):
-    row['population']=row['Energy Supply']/row['Energy Supply per Capita']
-    return row
 
 def DC_per(row):
     row['Citable documents per capita']=row['Citable documents']/row['population']
@@ -317,29 +245,9 @@ def answer_nine():
 answer_nine()
 
 
-# In[ ]:
-
-def plot9():
-    import matplotlib as plt
-    get_ipython().magic('matplotlib inline')
-    
-    Top15 = answer_one()
-    Top15['PopEst'] = Top15['Energy Supply'] / Top15['Energy Supply per Capita']
-    Top15['Citable docs per Capita'] = Top15['Citable documents'] / Top15['PopEst']
-    Top15.plot(x='Citable docs per Capita', y='Energy Supply per Capita', kind='scatter', xlim=[0, 0.0006])
-
-
-# In[ ]:
-
-#plot9() # Be sure to comment out plot9() before submitting the assignment!
-
-
 # ### Question 10 (6.6%)
 # Create a new column with a 1 if the country's % Renewable value is at or above the median for all countries in the top 15, and a 0 if the country's % Renewable value is below the median.
 # 
-# *This function should return a series named `HighRenew` whose index is the country name sorted in ascending order of rank.*
-
-# In[ ]:
 
 def discrimintate(data, median):
     if data<median:
@@ -379,13 +287,6 @@ answer_ten()
 #                   'Brazil':'South America'}
 # ```
 # 
-# *This function should return a DataFrame with index named Continent `['Asia', 'Australia', 'Europe', 'North America', 'South America']` and columns `['size', 'sum', 'mean', 'std']`*
-
-# In[ ]:
-
-def population(row):
-    row['population']=row['Energy Supply']/row['Energy Supply per Capita']
-    return row
 
 def groupBycontinent(row):
     ContinentDict  = {'China':'Asia', 
@@ -425,28 +326,6 @@ answer_eleven()
 # ### Question 12 (6.6%)
 # Cut % Renewable into 5 bins. Group Top15 by the Continent, as well as these new % Renewable bins. How many countries are in each of these groups?
 # 
-# *This function should return a __Series__ with a MultiIndex of `Continent`, then the bins for `% Renewable`. Do not include groups with no countries.*
-
-# In[ ]:
-
-def groupBycontinent(row):
-    ContinentDict  = {'China':'Asia', 
-                      'United States':'North America', 
-                      'Japan':'Asia', 
-                      'United Kingdom':'Europe', 
-                      'Russian Federation':'Europe', 
-                      'Canada':'North America', 
-                      'Germany':'Europe', 
-                      'India':'Asia',
-                      'France':'Europe', 
-                      'South Korea':'Asia', 
-                      'Italy':'Europe', 
-                      'Spain':'Europe', 
-                      'Iran':'Asia',
-                      'Australia':'Australia', 
-                      'Brazil':'South America'}
-    row['Continent']=ContinentDict[row[0]]
-    return row
 
 def answer_twelve():
     Top15 = answer_one()
@@ -468,13 +347,6 @@ answer_twelve()
 # 
 # e.g. 317615384.61538464 -> 317,615,384.61538464
 # 
-# *This function should return a Series `PopEst` whose index is the country name and whose values are the population estimate string.*
-
-# In[ ]:
-
-def population(row):
-    row['population']=row['Energy Supply']/row['Energy Supply per Capita']
-    return row
 
 def transtype(row):
     row['PopEst']=format(row['population'],',')
@@ -487,30 +359,3 @@ def answer_thirteen():
     return output
 
 answer_thirteen()
-
-
-# ### Optional
-# 
-# Use the built in function `plot_optional()` to see an example visualization.
-
-# In[ ]:
-
-def plot_optional():
-    import matplotlib as plt
-    get_ipython().magic('matplotlib inline')
-    Top15 = answer_one()
-    ax = Top15.plot(x='Rank', y='% Renewable', kind='scatter', 
-                    c=['#e41a1c','#377eb8','#e41a1c','#4daf4a','#4daf4a','#377eb8','#4daf4a','#e41a1c',
-                       '#4daf4a','#e41a1c','#4daf4a','#4daf4a','#e41a1c','#dede00','#ff7f00'], 
-                    xticks=range(1,16), s=6*Top15['2014']/10**10, alpha=.75, figsize=[16,6]);
-
-    for i, txt in enumerate(Top15.index):
-        ax.annotate(txt, [Top15['Rank'][i], Top15['% Renewable'][i]], ha='center')
-
-    print("This is an example of a visualization that can be created to help understand the data. This is a bubble chart showing % Renewable vs. Rank. The size of the bubble corresponds to the countries' 2014 GDP, and the color corresponds to the continent.")
-
-
-# In[ ]:
-
-#plot_optional() # Be sure to comment out plot_optional() before submitting the assignment!
-
