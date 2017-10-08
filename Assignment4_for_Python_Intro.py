@@ -49,3 +49,60 @@ def get_list_of_university_towns():
 
 get_list_of_university_towns()
 
+def get_GDP():
+    '''Returns a dataframe with columns=["time", "GDP", "trend"]'''
+    df=pd.read_excel('gdplev.xls', parse_cols=[4, 6], skiprows=219, names=['time','GDP'])
+    out=[]
+    for i in range(len(df)):
+        if i>0:
+            if df.iloc[i-1,1]>df.iloc[i,1]:
+                trend=-1
+            if df.iloc[i-1,1]==df.iloc[i,1]:
+                trend=0
+            if df.iloc[i-1,1]<df.iloc[i,1]:
+                trend=1
+            out.append(trend)
+        else:
+            out.append("nan")
+    df['trend']=out
+    return df
+
+def get_recession_start():
+    '''Returns the year and quarter of the recession start time as a 
+    string value in a format such as 2005q3'''
+    df=get_GDP()
+    for i in range(1,len(df)-4):
+        target=df.iloc[i:i+4,2]
+        target=target.tolist()
+        if target==[-1,-1,1,1]:
+            out=df.iloc[i,0]
+    return out
+
+get_recession_start()
+
+def get_recession_end():
+    '''Returns the year and quarter of the recession end time as a 
+    string value in a format such as 2005q3'''
+    df=get_GDP()
+    for i in range(1,len(df)-4):
+        target=df.iloc[i:i+4,2]
+        target=target.tolist()
+        if target==[-1,-1,1,1]:
+            out=df.iloc[i+3,0]
+    return out
+
+get_recession_end()
+
+def get_recession_bottom():
+    '''Returns the year and quarter of the recession bottom time as a 
+    string value in a format such as 2005q3'''
+    df=get_GDP()
+    for i in range(1,len(df)-4):
+        target=df.iloc[i:i+4,2]
+        target=target.tolist()
+        if target==[-1,-1,1,1]:
+            out=df.iloc[i+1,0]
+    return out
+
+get_recession_bottom()
+
