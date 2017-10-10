@@ -106,3 +106,40 @@ def get_recession_bottom():
 
 get_recession_bottom()
 
+def quarter(row):
+    index=str(row['index'])
+    if index[5:]=='03':
+        index=index[0:4]+"q1"
+    if index[5:]=='06':
+        index=index[0:4]+"q2"
+    if index[5:]=='09':
+        index=index[0:4]+"q3"
+    if index[5:]=='12':
+        index=index[0:4]+"q4"
+    return index
+
+def convert_housing_data_to_quarters():
+    '''
+    Converts the housing data to quarters and returns it as mean 
+    values in a dataframe. This dataframe should be a dataframe with
+    columns for 2000q1 through 2016q3, and should have a multi-index
+    in the shape of ["State","RegionName"].
+    
+    Note: Quarters are defined in the assignment description, they are
+    not arbitrary three month periods.
+    
+    The resulting dataframe should have 67 columns, and 10,730 rows.
+    '''
+    df=pd.read_csv('City_Zhvi_AllHomes.csv')
+    tdf=df.iloc[:,51:204]
+    tdf=tdf.T.rename(lambda x: pd.to_datetime(x))
+    mdf=tdf.T.resample('Q',axis=1).mean()
+    mdf=mdf.T.rename(lambda x: x.strftime('%Y-%m')).reset_index()
+    mdf['index']=mdf.apply(quarter,axis=1)
+    out=mdf.set_index('index').T
+    out['State']=df['State']
+    out['RegionName']=df['RegionName']
+    out=out.set_index(["State","RegionName"])
+    return out
+
+convert_housing_data_to_quarters()
