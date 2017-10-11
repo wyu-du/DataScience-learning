@@ -21,13 +21,6 @@ from scipy.stats import ttest_ind
 states = {'OH': 'Ohio', 'KY': 'Kentucky', 'AS': 'American Samoa', 'NV': 'Nevada', 'WY': 'Wyoming', 'NA': 'National', 'AL': 'Alabama', 'MD': 'Maryland', 'AK': 'Alaska', 'UT': 'Utah', 'OR': 'Oregon', 'MT': 'Montana', 'IL': 'Illinois', 'TN': 'Tennessee', 'DC': 'District of Columbia', 'VT': 'Vermont', 'ID': 'Idaho', 'AR': 'Arkansas', 'ME': 'Maine', 'WA': 'Washington', 'HI': 'Hawaii', 'WI': 'Wisconsin', 'MI': 'Michigan', 'IN': 'Indiana', 'NJ': 'New Jersey', 'AZ': 'Arizona', 'GU': 'Guam', 'MS': 'Mississippi', 'PR': 'Puerto Rico', 'NC': 'North Carolina', 'TX': 'Texas', 'SD': 'South Dakota', 'MP': 'Northern Mariana Islands', 'IA': 'Iowa', 'MO': 'Missouri', 'CT': 'Connecticut', 'WV': 'West Virginia', 'SC': 'South Carolina', 'LA': 'Louisiana', 'KS': 'Kansas', 'NY': 'New York', 'NE': 'Nebraska', 'OK': 'Oklahoma', 'FL': 'Florida', 'CA': 'California', 'CO': 'Colorado', 'PA': 'Pennsylvania', 'DE': 'Delaware', 'NM': 'New Mexico', 'RI': 'Rhode Island', 'MN': 'Minnesota', 'VI': 'Virgin Islands', 'NH': 'New Hampshire', 'MA': 'Massachusetts', 'GA': 'Georgia', 'ND': 'North Dakota', 'VA': 'Virginia'}
 
 
-def adjust_format(row):
-    if ('[' in row[0]) and ('(' not in row[0]):
-        row['State']=row[0].split("[")[0]
-    if '(' in row[0]:
-        row['RegionName']=row[0].split(" (")[0]
-    return row
-
 def get_list_of_university_towns():
     '''Returns a DataFrame of towns and the states they are in from the 
     university_towns.txt list. The format of the DataFrame should be:
@@ -40,14 +33,21 @@ def get_list_of_university_towns():
     2. For "RegionName", when applicable, removing every character from " (" to the end.
     3. Depending on how you read the data, you may need to remove newline character '\n'. '''
     
-    df=pd.read_csv('university_towns.txt',sep='\n',header=None)
-    df=df.apply(adjust_format, axis=1)
-    df['State']=df['State'].fillna(method='ffill')
-    df=df[df['RegionName'].notnull()]
-    out=pd.DataFrame(df,columns=["State", "RegionName"])
-    return out
+    f=open('university_towns.txt')
+    lines=f.readlines()
+    l=[]
+    for line in lines:
+        if ('[ed' in line):
+            State=line.strip('\n').split("[")[0]
+        else:
+            RegionName=line.strip('\n').split(" (")[0]
+            l.append([State,RegionName])
+    df=pd.DataFrame(l,columns=["State", "RegionName"])
+    return df
 
 get_list_of_university_towns()
+
+
 
 def get_GDP():
     '''Returns a dataframe with columns=["time", "GDP", "trend"]'''
@@ -71,12 +71,17 @@ def get_recession_start():
     '''Returns the year and quarter of the recession start time as a 
     string value in a format such as 2005q3'''
     df=get_GDP()
+    flag=0
     for i in range(1,len(df)-4):
-        target=df.iloc[i:i+4,2]
-        target=target.tolist()
-        if target==[-1,-1,1,1]:
-            out=df.iloc[i,0]
-    return out
+        if df.iloc[i,2]<0:
+            flag+=1
+        else:
+            flag=0
+        if flag>1 and df.iloc[i+1,2]<0:
+            continue
+        if flag>1 and df.iloc[i+1,2]>=0:
+            pos=i-flag+1
+    return df.iloc[pos,0]
 
 get_recession_start()
 
@@ -131,7 +136,7 @@ def convert_housing_data_to_quarters():
     The resulting dataframe should have 67 columns, and 10,730 rows.
     '''
     df=pd.read_csv('City_Zhvi_AllHomes.csv')
-    tdf=df.iloc[:,51:204]
+    tdf=df.iloc[:,51:252]
     tdf=tdf.T.rename(lambda x: pd.to_datetime(x))
     mdf=tdf.T.resample('Q',axis=1).mean()
     mdf=mdf.T.rename(lambda x: x.strftime('%Y-%m')).reset_index()
@@ -143,3 +148,61 @@ def convert_housing_data_to_quarters():
     return out
 
 convert_housing_data_to_quarters()
+
+re_states={v:k for k,v in states.items()}
+def mapping(row):
+    row['State']=re_states[row['State']]
+    return row
+
+def get_bstart(df,r_start):
+    df=df.T
+    for i,index in enumerate(df.index):
+        if index==r_start:
+            pos=i
+    return df.index[pos-1]
+
+def trending(row):
+    row['change']=row[0]/row[2]
+    return row
+
+def run_ttest():
+    '''First creates new data showing the decline or growth of housing prices
+    between the recession start and the recession bottom. Then runs a ttest
+    comparing the university town values to the non-university towns values, 
+    return whether the alternative hypothesis (that the two groups are the same)
+    is true or not as well as the p-value of the confidence. 
+    
+    Return the tuple (different, p, better) where different=True if the t-test is
+    True at a p<0.01 (we reject the null hypothesis), or different=False if 
+    otherwise (we cannot reject the null hypothesis). The variable p should
+    be equal to the exact p value returned from scipy.stats.ttest_ind(). The
+    value for better should be either "university town" or "non-university town"
+    depending on which has a lower mean price ratio (which is equivilent to a
+    reduced market loss).'''
+    uni_towns=get_list_of_university_towns().apply(mapping, axis=1)
+    housing_data=convert_housing_data_to_quarters()
+    r_start=get_recession_start()
+    b_start=get_bstart(housing_data,r_start)
+    r_bottom=get_recession_bottom()
+    df=housing_data.T.loc[b_start:r_bottom]
+    df=df.T.apply(trending, axis=1)
+    
+    subset=uni_towns[["State", "RegionName"]]
+    tuple_list=[tuple(x) for x in subset.values]
+    a=df.loc[tuple_list].dropna()['change']
+    b=df.loc[~df.index.isin(tuple_list)].dropna()['change']
+    t, p=ttest_ind(a,b)
+    if p<0.01:
+        different=True
+    else:
+        different=False
+    u_mean=np.mean(a)
+    n_mean=np.mean(b)
+    if u_mean<n_mean:
+        better="university town"
+    else:
+        better="non-university town"
+    out=(different,p,better)
+    return out
+
+run_ttest()
