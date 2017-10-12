@@ -28,7 +28,7 @@
 	* change a dataframe to a tuple: tuple(x) for x in df.values
 	* get the data which is not from tuple_list from a dataframe: df.loc[~df.index.isin(tuple_list)].dropna()
 	
-### Course reflections:
+4. Course reflections
 * pandas is a powerful tool which can handle complex problems with one line of code
 * data pre-pocessing is extremely important, because if not handled properly, the rest of the work will be no sense
 * multiple check is necessary when doing the data analysis project, small mistakes may totally change the outcome
